@@ -642,24 +642,29 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
         self.nextPageNumber = (((self.currentPageNumber + 1) <= totalPages) ? (self.currentPageNumber + 1) : self.currentPageNumber)
 
         // Set pages
-        guard let currentPage = currentPage else {
+        guard let currentPage = currentPage,
+            let webView = currentPage.webView else {
             completion?()
             return
         }
 
         scrollScrubber?.setSliderVal()
 
-        if let readingTime = currentPage.webView?.js("getReadingTime()") {
-            pageIndicatorView?.totalMinutes = Int(readingTime)!
-        } else {
-            pageIndicatorView?.totalMinutes = 0
-        }
-        pagesForCurrentPage(currentPage)
-
-        delegate?.pageDidAppear?(currentPage)
-        delegate?.pageItemChanged?(self.getCurrentPageItemNumber())
-        
-        completion?()
+        let script = "getReadingTime()"
+        webView.js(script, completion: { [weak self] result in
+            guard let weakSelf = self else { return }
+            if let readingTimeString = result as? String,
+                let readingTime = Int(readingTimeString) {
+                weakSelf.pageIndicatorView?.totalMinutes = readingTime
+            } else {
+                weakSelf.pageIndicatorView?.totalMinutes = 0
+            }
+            
+            weakSelf.pagesForCurrentPage(currentPage)
+            weakSelf.delegate?.pageDidAppear?(currentPage)
+            weakSelf.delegate?.pageItemChanged?(weakSelf.getCurrentPageItemNumber())
+            completion?()
+        })
     }
 
     func pagesForCurrentPage(_ page: FolioReaderPage?) {
@@ -1073,11 +1078,13 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
      Sharing chapter method.
      */
     @objc func shareChapter(_ sender: UIBarButtonItem) {
-        guard let currentPage = currentPage else { return }
+        guard let webView = currentPage?.webView else { return }
 
-        if let chapterText = currentPage.webView?.js("getBodyText()") {
+        let script = "getBodyText()"
+        webView.js(script, completion: { [weak self] (response) in
+            guard let weakSelf = self, let chapterText = response as? String else { return }
             let htmlText = chapterText.replacingOccurrences(of: "[\\n\\r]+", with: "<br />", options: .regularExpression)
-            var subject = readerConfig.localizedShareChapterSubject
+            var subject = weakSelf.readerConfig.localizedShareChapterSubject
             var html = ""
             var text = ""
             var bookTitle = ""
@@ -1086,35 +1093,35 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
             var shareItems = [AnyObject]()
 
             // Get book title
-            if let title = self.book.title {
+            if let title = weakSelf.book.title {
                 bookTitle = title
                 subject += " “\(title)”"
             }
 
             // Get chapter name
-            if let chapter = getCurrentChapterName() {
+            if let chapter = weakSelf.getCurrentChapterName() {
                 chapterName = chapter
             }
 
             // Get author name
-            if let author = self.book.metadata.creators.first {
+            if let author = weakSelf.book.metadata.creators.first {
                 authorName = author.name
             }
 
             // Sharing html and text
             html = "<html><body>"
             html += "<br /><hr> <p>\(htmlText)</p> <hr><br />"
-            html += "<center><p style=\"color:gray\">"+readerConfig.localizedShareAllExcerptsFrom+"</p>"
+            html += "<center><p style=\"color:gray\">"+weakSelf.readerConfig.localizedShareAllExcerptsFrom+"</p>"
             html += "<b>\(bookTitle)</b><br />"
-            html += readerConfig.localizedShareBy+" <i>\(authorName)</i><br />"
+            html += weakSelf.readerConfig.localizedShareBy+" <i>\(authorName)</i><br />"
 
-            if let bookShareLink = readerConfig.localizedShareWebLink {
+            if let bookShareLink = weakSelf.readerConfig.localizedShareWebLink {
                 html += "<a href=\"\(bookShareLink.absoluteString)\">\(bookShareLink.absoluteString)</a>"
                 shareItems.append(bookShareLink as AnyObject)
             }
 
             html += "</center></body></html>"
-            text = "\(chapterName)\n\n“\(chapterText)” \n\n\(bookTitle) \n\(readerConfig.localizedShareBy) \(authorName)"
+            text = "\(chapterName)\n\n“\(chapterText)” \n\n\(bookTitle) \n\(weakSelf.readerConfig.localizedShareBy) \(authorName)"
 
             let act = FolioReaderSharingProvider(subject: subject, text: text, html: html)
             shareItems.insert(contentsOf: [act, "" as AnyObject], at: 0)
@@ -1127,8 +1134,8 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
                 actv.barButtonItem = sender
             }
 
-            present(activityViewController, animated: true, completion: nil)
-        }
+            weakSelf.present(activityViewController, animated: true, completion: nil)
+        })
     }
 
     /**

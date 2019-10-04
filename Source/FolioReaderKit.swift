@@ -186,7 +186,8 @@ extension FolioReader {
 
             if let readerCenter = self.readerCenter {
                 UIView.animate(withDuration: 0.6, animations: {
-                    _ = readerCenter.currentPage?.webView?.js("nightMode(\(self.nightMode))")
+                    // Warning: Potential race condition
+                    readerCenter.currentPage?.webView?.js("nightMode(\(self.nightMode))", completion: { _ in })
                     readerCenter.pageIndicatorView?.reloadColors()
                     readerCenter.configureNavBar()
                     readerCenter.scrollScrubber?.reloadColors()
@@ -210,8 +211,8 @@ extension FolioReader {
             return font
         }
         set (font) {
-            self.defaults.set(font.rawValue, forKey: kCurrentFontFamily)
-            _ = self.readerCenter?.currentPage?.webView?.js("setFontName('\(font.cssIdentifier)')")
+            defaults.set(font.rawValue, forKey: kCurrentFontFamily)
+            readerCenter?.currentPage?.webView?.js("setFontName('\(font.cssIdentifier)')", completion: { _ in })
         }
     }
 
@@ -227,13 +228,9 @@ extension FolioReader {
             return size
         }
         set (value) {
-            self.defaults.set(value.rawValue, forKey: kCurrentFontSize)
-
-            guard let currentPage = self.readerCenter?.currentPage else {
-                return
-            }
-
-            currentPage.webView?.js("setFontSize('\(currentFontSize.cssIdentifier)')")
+            defaults.set(value.rawValue, forKey: kCurrentFontSize)
+            guard let currentPage = self.readerCenter?.currentPage else { return }
+            currentPage.webView?.js("setFontSize('\(currentFontSize.cssIdentifier)')", completion: { _ in })
         }
     }
 

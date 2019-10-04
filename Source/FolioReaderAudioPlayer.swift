@@ -175,10 +175,10 @@ open class FolioReaderAudioPlayer: NSObject {
 
     @objc func play() {
         if book.hasAudio {
-            guard let currentPage = self.folioReader.readerCenter?.currentPage else { return }
-            currentPage.webView?.js("playAudio()")
+            guard let webView = folioReader.readerCenter?.currentPage?.webView else { return }
+            webView.js("playAudio()", completion: { _ in })
         } else {
-            self.readCurrentSentence()
+            readCurrentSentence()
         }
     }
 
@@ -375,29 +375,27 @@ open class FolioReaderAudioPlayer: NSObject {
     // MARK: TTS Sentence
 
     func speakSentence() {
-        guard
-            let readerCenter = self.folioReader.readerCenter,
-            let currentPage = readerCenter.currentPage else {
-                return
-        }
-
+        guard let readerCenter = self.folioReader.readerCenter,
+            let currentPage = readerCenter.currentPage else { return }
+        
         let playbackActiveClass = book.playbackActiveClass
-        guard let sentence = currentPage.webView?.js("getSentenceWithIndex('\(playbackActiveClass)')") else {
-            if (readerCenter.isLastPage() == true) {
-                self.stop()
-            } else {
-                readerCenter.changePageToNext()
+        
+        guard let webView = currentPage.webView else {
+            readerCenter.isLastPage() == true ? stop() : readerCenter.changePageToNext()
+            return
+        }
+        
+        let script = "getSentenceWithIndex('\(playbackActiveClass)')"
+        webView.js(script, completion: { [weak self] result in
+            guard let sentence = result as? String else {
+                readerCenter.isLastPage() == true ? self?.stop() : readerCenter.changePageToNext()
+                return
             }
-
-            return
-        }
-
-        guard let href = readerCenter.getCurrentChapter()?.href else {
-            return
-        }
-
-        // TODO QUESTION: The previous code made it possible to call `playText` with the parameter `href` being an empty string. Was that valid? should this logic be kept?
-        self.playText(href, text: sentence)
+            
+            if let href = readerCenter.getCurrentChapter()?.href {
+               self?.playText(href, text: sentence)
+            }
+        })
     }
 
     func readCurrentSentence() {
@@ -409,8 +407,8 @@ open class FolioReaderAudioPlayer: NSObject {
         } else {
             if synthesizer.isSpeaking {
                 stopSynthesizer(immediate: false, completion: {
-                    if let currentPage = self.folioReader.readerCenter?.currentPage {
-                        currentPage.webView?.js("resetCurrentSentenceIndex()")
+                    if let webView = self.folioReader.readerCenter?.currentPage?.webView {
+                        webView.js("resetCurrentSentenceIndex()", completion: { _ in })
                     }
                     self.speakSentence()
                 })

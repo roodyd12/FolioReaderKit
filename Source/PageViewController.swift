@@ -18,7 +18,7 @@ class PageViewController: UIPageViewController {
     var index: Int
     fileprivate var readerConfig: FolioReaderConfig
     fileprivate var folioReader: FolioReader
-
+    
     // MARK: Init
 
     init(folioReader: FolioReader, readerConfig: FolioReaderConfig) {

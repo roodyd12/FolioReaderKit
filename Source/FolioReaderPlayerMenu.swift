@@ -267,7 +267,9 @@ class FolioReaderPlayerMenu: UIViewController, SMSegmentViewDelegate, UIGestureR
 
         // update the current page style
         if let currentPage = self.folioReader.readerCenter?.currentPage {
-            currentPage.webView?.js("setMediaOverlayStyle(\"\(self.folioReader.currentMediaOverlayStyle.className())\")")
+            guard let webView = currentPage.webView else { return }
+            let script = "setMediaOverlayStyle(\"\(folioReader.currentMediaOverlayStyle.className())\")"
+            webView.js(script, completion: { _ in })
         }
     }
 
