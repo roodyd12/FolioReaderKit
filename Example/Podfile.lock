@@ -25,7 +25,7 @@ DEPENDENCIES:
   - Quick (= 2.2.0)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - AEXML
     - FontBlaster
     - MenuItemKit
@@ -42,7 +42,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AEXML: 16fb739dfb3809e91ebf9e9dc391482c3a6aaebf
-  FolioReaderKit: ef1452371af82bf4940c4b9986fc3bb827733c54
+  FolioReaderKit: 7a51fefaf014c30dabcccf7954c3625acbbe4877
   FontBlaster: 127aa66419478d1c62926c7fdb39841633344a45
   MenuItemKit: 0f850e630b0a3d2bd80fec54db87ce0d2077ada2
   Nimble: 18d5360282923225d62b09d781f63abc1a0111fc
@@ -52,6 +52,6 @@ SPEC CHECKSUMS:
   SSZipArchive: 14401ade5f8e82aba1ff03e9f88e9de60937ae60
   ZFDragableModalTransition: 0d294eaaba6edfcb9839595de765f9ca06a4b524
 
-PODFILE CHECKSUM: ff81bd3cb209169f6ea85d135c3a1d9c8589def4
+PODFILE CHECKSUM: 7b733644a1e8c15cef7630663583fb8c8ef79ead
 
-COCOAPODS: 1.7.5
+COCOAPODS: 1.9.3
