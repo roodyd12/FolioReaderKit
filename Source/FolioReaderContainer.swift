@@ -174,9 +174,8 @@ open class FolioReaderContainer: UIViewController {
                     weakSelf.folioReader.delegate?.folioReader?(weakSelf.folioReader, didFinishedLoading: weakSelf.book)
                 }
             } catch {
-                weakSelf.folioReader.delegate?.folioReader?(weakSelf.folioReader, loadingError: error)
                 weakSelf.errorOnLoad = true
-                weakSelf.alert(message: error.localizedDescription)
+                weakSelf.folioReader.delegate?.folioReader?(weakSelf.folioReader, loadingError: error)
             }
         }
     }
@@ -209,21 +208,5 @@ open class FolioReaderContainer: UIViewController {
 
     override open var preferredStatusBarStyle: UIStatusBarStyle {
         return self.folioReader.isNight(.lightContent, .default)
-    }
-}
-
-extension FolioReaderContainer {
-    func alert(message: String) {
-        let alertController = UIAlertController(
-            title: "Error",
-            message: message,
-            preferredStyle: UIAlertController.Style.alert
-        )
-        let action = UIAlertAction(title: "OK", style: UIAlertAction.Style.cancel) { [weak self]
-            (result : UIAlertAction) -> Void in
-            self?.dismiss()
-        }
-        alertController.addAction(action)
-        self.present(alertController, animated: true, completion: nil)
     }
 }
