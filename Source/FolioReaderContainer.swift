@@ -26,8 +26,6 @@ open class FolioReaderContainer: UIViewController {
     public var readerConfig: FolioReaderConfig
     public var folioReader: FolioReader
 
-    fileprivate var errorOnLoad = false
-
     // MARK: - Init
 
     /// Init a Folio Reader Container
@@ -151,7 +149,7 @@ open class FolioReaderContainer: UIViewController {
         // Read async book
         guard (self.epubPath.isEmpty == false) else {
             print("Epub path is nil.")
-            self.errorOnLoad = true
+            self.folioReader.delegate?.folioReader?(self.folioReader, loadingError: NSError(domain:"Epub path is nil.", code:1, userInfo:nil))
             return
         }
 
@@ -175,19 +173,10 @@ open class FolioReaderContainer: UIViewController {
                 }
             } catch {
                 DispatchQueue.main.async { [weak self] in
-//                    weakSelf.errorOnLoad = true
                     weakSelf.folioReader.delegate?.folioReader?(weakSelf.folioReader, loadingError: error)
                 }
             }
         }
-    }
-
-    override open func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-//        if (self.errorOnLoad == true) {
-//            self.dismiss()
-//        }
     }
 
     /**
