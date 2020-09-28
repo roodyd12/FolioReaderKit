@@ -175,7 +175,7 @@ open class FolioReaderContainer: UIViewController {
                 }
             } catch {
                 DispatchQueue.main.async { [weak self] in
-                    weakSelf.errorOnLoad = true
+//                    weakSelf.errorOnLoad = true
                     weakSelf.folioReader.delegate?.folioReader?(weakSelf.folioReader, loadingError: error)
                 }
             }
@@ -185,9 +185,9 @@ open class FolioReaderContainer: UIViewController {
     override open func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        if (self.errorOnLoad == true) {
-            self.dismiss()
-        }
+//        if (self.errorOnLoad == true) {
+//            self.dismiss()
+//        }
     }
 
     /**
