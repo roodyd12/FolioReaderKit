@@ -174,8 +174,10 @@ open class FolioReaderContainer: UIViewController {
                     weakSelf.folioReader.delegate?.folioReader?(weakSelf.folioReader, didFinishedLoading: weakSelf.book)
                 }
             } catch {
-                weakSelf.errorOnLoad = true
-                weakSelf.folioReader.delegate?.folioReader?(weakSelf.folioReader, loadingError: error)
+                DispatchQueue.main.async { [weak self] in
+                    weakSelf.errorOnLoad = true
+                    weakSelf.folioReader.delegate?.folioReader?(weakSelf.folioReader, loadingError: error)
+                }
             }
         }
     }
