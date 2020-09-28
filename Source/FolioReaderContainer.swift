@@ -149,7 +149,7 @@ open class FolioReaderContainer: UIViewController {
         // Read async book
         guard (self.epubPath.isEmpty == false) else {
             print("Epub path is nil.")
-            self.folioReader.delegate?.folioReader?(self.folioReader, loadingError: NSError(domain:"Epub path is nil.", code:1, userInfo:nil))
+            self.folioReader.delegate?.folioReader?(self.folioReader, error: NSError(domain:"Epub path is nil.", code:1, userInfo:nil))
             return
         }
 
@@ -173,7 +173,7 @@ open class FolioReaderContainer: UIViewController {
                 }
             } catch {
                 DispatchQueue.main.async { [weak self] in
-                    weakSelf.folioReader.delegate?.folioReader?(weakSelf.folioReader, loadingError: error)
+                    weakSelf.folioReader.delegate?.folioReader?(weakSelf.folioReader, error: error)
                 }
             }
         }

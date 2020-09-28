@@ -82,7 +82,12 @@ public enum MediaOverlayStyle: Int {
     ///   - book: The Book instance
     @objc optional func folioReader(_ folioReader: FolioReader, didFinishedLoading book: FRBook)
     
-    @objc optional func folioReader(_ folioReader: FolioReader, loadingError: Error)
+    /// FolioReader error callback.
+    ///
+    /// - Parameters:
+    ///   - folioReader: The FolioReader instance
+    ///   - error: The error which occurs
+    @objc optional func folioReader(_ folioReader: FolioReader, error: Error)
     
     /// Called when reader did closed.
     ///
