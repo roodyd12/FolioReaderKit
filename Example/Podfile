@@ -2,12 +2,7 @@ platform :ios, '12.0'
 
 use_frameworks!
 inhibit_all_warnings!
-
-pre_install do |installer|
-  installer.analysis_result.specifications.each do |s|
-    s.swift_version = '5.1'
-    end
-end
+ENV['SWIFT_VERSION'] = '5'
 
 post_install do |lib|
     lib.pods_project.targets.each do |target|

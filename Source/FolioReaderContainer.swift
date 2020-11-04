@@ -26,8 +26,6 @@ open class FolioReaderContainer: UIViewController {
     public var readerConfig: FolioReaderConfig
     public var folioReader: FolioReader
 
-    fileprivate var errorOnLoad = false
-
     // MARK: - Init
 
     /// Init a Folio Reader Container
@@ -151,7 +149,7 @@ open class FolioReaderContainer: UIViewController {
         // Read async book
         guard (self.epubPath.isEmpty == false) else {
             print("Epub path is nil.")
-            self.errorOnLoad = true
+            self.folioReader.delegate?.folioReader?(self.folioReader, error: NSError(domain:"Epub path is nil.", code:1, userInfo:nil))
             return
         }
 
@@ -174,17 +172,10 @@ open class FolioReaderContainer: UIViewController {
                     weakSelf.folioReader.delegate?.folioReader?(weakSelf.folioReader, didFinishedLoading: weakSelf.book)
                 }
             } catch {
-                weakSelf.errorOnLoad = true
-                weakSelf.alert(message: error.localizedDescription)
+                DispatchQueue.main.async { [weak self] in
+                    weakSelf.folioReader.delegate?.folioReader?(weakSelf.folioReader, error: error)
+                }
             }
-        }
-    }
-
-    override open func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        if (self.errorOnLoad == true) {
-            self.dismiss()
         }
     }
 
@@ -208,21 +199,5 @@ open class FolioReaderContainer: UIViewController {
 
     override open var preferredStatusBarStyle: UIStatusBarStyle {
         return self.folioReader.isNight(.lightContent, .default)
-    }
-}
-
-extension FolioReaderContainer {
-    func alert(message: String) {
-        let alertController = UIAlertController(
-            title: "Error",
-            message: message,
-            preferredStyle: UIAlertController.Style.alert
-        )
-        let action = UIAlertAction(title: "OK", style: UIAlertAction.Style.cancel) { [weak self]
-            (result : UIAlertAction) -> Void in
-            self?.dismiss()
-        }
-        alertController.addAction(action)
-        self.present(alertController, animated: true, completion: nil)
     }
 }
